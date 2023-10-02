@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Student;
 
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
 use GuzzleHttp\Client;
 
@@ -16,7 +18,7 @@ class StudentController extends Component
     public $componentName;
 
     public $selected_id;
-    public  $username, $password, $firtsname, $lastname, $email, $course = [],$matricular;
+    public  $username, $password, $firtsname, $lastname, $email, $course = [], $matricular;
 
     private $pagination = 10;
     public function mount()
@@ -112,6 +114,7 @@ class StudentController extends Component
                 }
             }
         }
+        return redirect('/clientes');
     }
     public function update()
     {
@@ -222,90 +225,66 @@ class StudentController extends Component
                 }
             }
         }
+        return redirect('/clientes');
 
         // Redirigir o devolver una respuesta según sea necesario
     }
 
     public function render()
     {
-        // Crear un cliente HTTP de Guzzle
+        // Create an HTTP client using Guzzle
         $client = new Client();
-
-        // Obtener la lista de todos los cursos
+    
+        // Fetch all users from Moodle
         $response = $client->post('https://secap.edu.bo/webservice/rest/server.php', [
             'form_params' => [
-                'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Tu token
-                'wsfunction' => 'core_course_get_courses',
+                'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Your token
+                'wsfunction' => 'core_user_get_users',
                 'moodlewsrestformat' => 'json',
             ],
         ]);
-
-        // Decodificar la respuesta JSON
-        $cursos = json_decode($response->getBody(), true);
-
-        // Inicializar un array asociativo para los estudiantes
-        $estudiantes = [];
-
-        // Iterar a través de la lista de cursos
-        foreach ($cursos as $curso) {
-            // Obtener la lista de usuarios para cada curso
-            $response = $client->post('https://secap.edu.bo/webservice/rest/server.php', [
-                'form_params' => [
-                    'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Tu token
-                    'wsfunction' => 'core_enrol_get_enrolled_users',
-                    'moodlewsrestformat' => 'json',
-                    'courseid' => $curso['id'], // ID del curso actual
-                ],
-            ]);
-
-            // Decodificar la respuesta JSON
-            $usuariosEnCurso = json_decode($response->getBody(), true);
-
-            // Filtrar la lista de usuarios para seleccionar solo a los estudiantes
-            $estudiantesEnCurso = array_filter($usuariosEnCurso, function ($usuario) {
-                foreach ($usuario['roles'] as $rol) {
-                    if ($rol['shortname'] === 'student') {
-                        return true;
+    
+        // Decode the JSON response for users
+        $users = json_decode($response->getBody(), true);
+    
+        // Initialize arrays to store students and non-students
+        $students = [];
+        $nonStudents = [];
+    
+        // Iterate through users to identify students and non-students
+        foreach ($users as $user) {
+            if (isset($user['roles']) && is_array($user['roles'])) {
+                $isStudent = false;
+    
+                // Check if the user has the 'student' role
+                foreach ($user['roles'] as $role) {
+                    if ($role['shortname'] === 'student') {
+                        $isStudent = true;
+                        break;
                     }
                 }
-                return false;
-            });
-
-            // Iterar a través de los estudiantes en este curso
-            foreach ($estudiantesEnCurso as $estudiante) {
-                $estudianteId = $estudiante['id'];
-
-                // Verificar si el estudiante ya está en la lista
-                if (!isset($estudiantes[$estudianteId])) {
-                    // Agregar el estudiante a la lista con su ID como clave
-                    $estudiantes[$estudianteId] = $estudiante;
-
-                    // Agregar el nombre del curso a la lista de cursos del estudiante
-                    $estudiantes[$estudianteId]['cursos'][] = $curso['fullname'];
+    
+                if ($isStudent) {
+                    $students[] = [
+                        'id' => $user['id'],
+                        'username' => $user['username'],
+                    ];
                 } else {
-                    // Si el estudiante ya existe, simplemente agrega el nombre del curso
-                    $estudiantes[$estudianteId]['cursos'][] = $curso['fullname'];
+                    $nonStudents[] = [
+                        'id' => $user['id'],
+                        'username' => $user['username'],
+                    ];
                 }
             }
         }
-
-        // Puedes obtener la lista final de estudiantes usando array_values para eliminar las claves
-        $listaEstudiantes = array_values($estudiantes);
-
-        // Puedes ordenar la lista de estudiantes según tus necesidades
-        $listaEstudiantes = collect($listaEstudiantes)->sortBy('nombre_completo')->toArray();
-
-        // Pasar la lista de estudiantes a la vista
-        $filteredEstudiantes = array_filter($listaEstudiantes, function ($estudiante) {
-            // Comparar el término de búsqueda con el nombre completo del estudiante
-            return stristr($estudiante['username'], $this->searchTerm) !== false;
-        });
-
+    
+        // Now, combine students and non-students and pass them to the view
         return view('livewire.student.student', [
-            'estudiantes' => $filteredEstudiantes,
-            'cursos' => $cursos,
-        ]);
+            'estudiantes' => array_merge($students, $nonStudents),
+            'cursos' => [], // You can fetch courses and pass them here if needed
+        ])->layout('layouts.app');
     }
+    
     public function getStudentDataFromMoodle($studentId)
     {
         // Crear una instancia de GuzzleHttp\Client
@@ -373,7 +352,7 @@ class StudentController extends Component
         $this->lastname = $studentData['student']['lastname'];
         $this->email = $studentData['student']['email'];
         $this->course = collect($studentData['courses'])->pluck('id')->toArray();
-        $this->dispatch('show-modal', 'show'); 
+        $this->dispatch('show-modal', 'show');
     }
 
 

@@ -20,17 +20,17 @@
                                 data-toggle="modal" data-target="#exampleModal">
                                 <i class="fa fa-user"></i> Añadir Estudiante
                             </button>
-                            
-                           
-                          
-                         
-                            
-                            
-                            
+
+
+
+
+
+
+
                         </div>
-                      
+
                     </div>
-    
+
                     @include('livewire.student.form')
                 </div>
             </div>
@@ -81,11 +81,11 @@
                             <tbody>
                                 @forelse ($estudiantes as $estudents)
                                     <tr>
-                                            <td>
-                                                <span class="badge badge-light-success">{{ ++$contador }}</span>
-        
-        
-                                            </td>
+                                        <td>
+                                            <span class="badge badge-light-success">{{ ++$contador }}</span>
+
+
+                                        </td>
 
                                         <td>
                                             {{ $estudents['username'] }}
@@ -131,6 +131,7 @@
                             </tbody>
 
                         </table>
+
                     </div>
                     <br>
                 </div>

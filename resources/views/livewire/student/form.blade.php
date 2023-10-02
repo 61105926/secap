@@ -3,111 +3,111 @@
 <div class="modal-body">
     <form class="mt-3 mb-4" enctype="multipart/form-data">
 
-    <div class="row ">
-        <div class="col-sm-4">
-            <label for="exampleFormControlInput1">Nombre De Usuario:</label>
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <i class="fas fa-address-book"></i>
-                    </span>
-                    <input wire:model.lazy="username" type="text" class="form-control" placeholder="Usuario">
+        <div class="row ">
+            <div class="col-sm-4">
+                <label for="exampleFormControlInput1">Nombre De Usuario:</label>
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <i class="fas fa-address-book"></i>
+                        </span>
+                        <input wire:model.lazy="username" type="text" class="form-control" placeholder="Usuario">
+                    </div>
+                    @error('username')
+                        <span class="text-danger er">{{ $message }}</span>
+                    @enderror
                 </div>
-                @error('username')
-                    <span class="text-danger er">{{ $message }}</span>
-                @enderror
             </div>
-        </div>
-        <div class="col-sm-4">
-            <label for="exampleFormControlInput1">Contraseña:</label>
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <i class="fas fa-address-book"></i>
-                    </span>
-                    <input wire:model.lazy="password" type="text" class="form-control" placeholder="Contraseña">
+            <div class="col-sm-4">
+                <label for="exampleFormControlInput1">Contraseña:</label>
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <i class="fas fa-address-book"></i>
+                        </span>
+                        <input wire:model.lazy="password" type="text" class="form-control" placeholder="Contraseña">
+                    </div>
+                    @error('password')
+                        <span class="text-danger er">{{ $message }}</span>
+                    @enderror
                 </div>
-                @error('password')
-                    <span class="text-danger er">{{ $message }}</span>
-                @enderror
             </div>
-        </div>
-        <div class="col-sm-4">
-            <label for="exampleFormControlInput1">Nombres :</label>
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <i class="fas fa-address-book"></i>
-                    </span>
-                    <input wire:model="firtsname" type="text" class="form-control" placeholder="Nombres">
+            <div class="col-sm-4">
+                <label for="exampleFormControlInput1">Nombres :</label>
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <i class="fas fa-address-book"></i>
+                        </span>
+                        <input wire:model="firtsname" type="text" class="form-control" placeholder="Nombres">
+                    </div>
+                    @error('firtsname')
+                        <span class="text-danger er">{{ $message }}</span>
+                    @enderror
+
                 </div>
-                @error('firtsname')
-                    <span class="text-danger er">{{ $message }}</span>
-                @enderror
-
             </div>
-        </div>
-        <div class="col-sm-4">
-            <label for="exampleFormControlInput1">Apellidos:</label>
+            <div class="col-sm-4">
+                <label for="exampleFormControlInput1">Apellidos:</label>
 
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <i class="fas fa-id-card"></i>
-                    </span>
-                    <input wire:model="lastname" type="text" class="form-control" placeholder="Apellidos">
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <i class="fas fa-id-card"></i>
+                        </span>
+                        <input wire:model="lastname" type="text" class="form-control" placeholder="Apellidos">
+                    </div>
+                    @error('lastname')
+                        <span class="text-danger er">{{ $message }}</span>
+                    @enderror
                 </div>
-                @error('lastname')
-                    <span class="text-danger er">{{ $message }}</span>
-                @enderror
             </div>
-        </div>
-        <div class="col-sm-4">
-            <label for="exampleFormControlInput1">Correo Electronico:</label>
-            <div class="form-group">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <i class="fas fa-id-card"></i>
-                    </span>
-                    <input wire:model="email" type="text" class="form-control" placeholder="Email">
+            <div class="col-sm-4">
+                <label for="exampleFormControlInput1">Correo Electronico:</label>
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <i class="fas fa-id-card"></i>
+                        </span>
+                        <input wire:model="email" type="text" class="form-control" placeholder="Email">
+                    </div>
+                    @error('email')
+                        <span class="text-danger er">{{ $message }}</span>
+                    @enderror
                 </div>
-                @error('email')
-                    <span class="text-danger er">{{ $message }}</span>
-                @enderror
             </div>
+
         </div>
+        <span style="font-size: 20px;">Asignar Cursos</span>
 
-    </div>
-    <span style="font-size: 20px;">Asignar Cursos</span>
-
-    <div>
-        @error('course')
-            <span class="text-danger er">{{ $message }}</span>
-        @enderror
-    </div>
-    @if ($selected_id > 1)
-        <div class="form-check">
-            <input class="form-check-input" wire:model="matricular" type="checkbox" id="matricularCheck">
-            <label class="form-check-label" for="matricularCheck">
-                Desmatricular al estudiante
-            </label>
+        <div>
+            @error('course')
+                <span class="text-danger er">{{ $message }}</span>
+            @enderror
         </div>
-    @else
-    @endif
-
-    @foreach ($cursos as $curso)
-        @if (!$loop->first)
-            <div class="form-check form-check-primary form-check-inline">
-                <input class="form-check-input" wire:model="course" type="checkbox" value="{{ $curso['id'] }}"
-                    id="curso{{ $loop->index }}">
-                <label class="form-check-label" for="curso{{ $loop->index }}">{{ $curso['shortname'] }}</label>
+        @if ($selected_id > 1)
+            <div class="form-check">
+                <input class="form-check-input" wire:model="matricular" type="checkbox" id="matricularCheck">
+                <label class="form-check-label" for="matricularCheck">
+                    Desmatricular al estudiante
+                </label>
             </div>
+        @else
         @endif
-    @endforeach
+
+        @foreach ($cursos as $curso)
+            @if (!$loop->first)
+                <div class="form-check form-check-primary form-check-inline">
+                    <input class="form-check-input" wire:model="course" type="checkbox" value="{{ $curso['id'] }}"
+                        id="curso{{ $loop->index }}">
+                    <label class="form-check-label" for="curso{{ $loop->index }}">{{ $curso['shortname'] }}</label>
+                </div>
+            @endif
+        @endforeach
 
 
 
-</form>
+    </form>
 </div>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
@@ -131,28 +131,22 @@
 <!-- END PAGE LEVEL SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.addEventListener('livewire:initialized', () => {
-       @this.on('show-modal', (event) => {
-        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-        myModal.show();
-        console.log('hola');
+    document.addEventListener('livewire:initialized', () => {
+        @this.on('user-added', (event) => {
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            myModal.hide();
+        });
+        @this.on('show-modal', (event) => {
+            
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            myModal.show();
+        });
+      
+        @this.on('user-updated', (event) => {
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            myModal.hide();
+        });
     });
-    @this.on('show-modal', (event) => {
-        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-        myModal.show();
-        console.log('hola');
-    });
-    window.livewire.on('user-added', () => {
-        $('#exampleModal').modal('hide');
-    });
-
-    window.livewire.on('user-updated', () => {
-        $('#exampleModal').modal('hide');
-    });
-});
-        // Accede a la variable de Livewire y úsala en tu JavaScript
-     
- 
- 
+    // Accede a la variable de Livewire y úsala en tu JavaScript
 </script>
 @include('common.modalfooter')
