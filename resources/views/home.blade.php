@@ -46,7 +46,7 @@
                     <div class="small-box bg-secondary">
                         <div class="inner">
                             <h3>{{ $client }}</h3>
-                            <p>Clientes Registrados</p>
+                            <p>Estudiantes Registrados</p>
                         </div>
                         <div class="icon">
                             <i class="fas fa-user-friends"></i>

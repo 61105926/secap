@@ -332,7 +332,7 @@ return [
             'can' => 'web.usuarios',
         ],
         [
-            'text' => 'Clientes',
+            'text' => 'Estudiantes',
             'url'  => 'clientes',
             'icon' => 'fas fa-fw fa-users',
             'icon_color' => 'red',

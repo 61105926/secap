@@ -20,15 +20,12 @@
                                 data-toggle="modal" data-target="#exampleModal">
                                 <i class="fa fa-user"></i> Añadir Estudiante
                             </button>
-
-
-
-
-
-
-
+                            <br>
+                            <br>
                         </div>
-
+                        <div class="col"><div class="my-4">
+                            <input wire:model.live="searchTerm" type="text" class="form-control" placeholder="Buscar estudiantes...">
+                        </div></div>
                     </div>
 
                     @include('livewire.student.form')

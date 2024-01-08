@@ -3,7 +3,7 @@
 @section('title', 'Clientes')
 
 @section('content_header')
-    <h1>Clientes</h1>
+    <h1>Estudiantes</h1>
     {{-- <form method="POST" action="{{ route('import') }}" enctype="multipart/form-data">
         @csrf
         <input type="file" name="import_file">

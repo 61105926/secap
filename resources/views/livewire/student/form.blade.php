@@ -130,6 +130,7 @@
 <script src="../src/plugins/src/flatpickr/custom-flatpickr.js"></script>
 <!-- END PAGE LEVEL SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     document.addEventListener('livewire:initialized', () => {
         @this.on('user-added', (event) => {
@@ -137,14 +138,34 @@
             myModal.hide();
         });
         @this.on('show-modal', (event) => {
-            
+
             var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
             myModal.show();
         });
-      
+
         @this.on('user-updated', (event) => {
             var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
             myModal.hide();
+        });
+        @this.on('validarCamposResponse', (event) => {
+            console.log(event);
+            if (event !== undefined && event !== null) {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: event, // Mensaje de error específico del formato de email incorrecto
+                    showConfirmButton: false,
+                    timer: 50500
+                });
+            } else if (!event) {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Debes rellenar todos los campos',
+                    showConfirmButton: false,
+                    timer: 22500
+                });
+            }
         });
     });
     // Accede a la variable de Livewire y úsala en tu JavaScript

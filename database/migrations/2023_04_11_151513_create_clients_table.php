@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_user');
             $table->foreign('id_user')->references('id')->on('users')->nullable();
-            $table->unsignedBigInteger('id_departament');
-            $table->foreign('id_departament')->references('id')->on('departaments')->nullable();
             $table->string('name');
-            $table->string('ci')->unique();
-            $table->string('phone')->nullable();
+            $table->string('lastname');
+            $table->string('user_name');
+            $table->string('email');
+
             $table->timestamps();
         });
     }

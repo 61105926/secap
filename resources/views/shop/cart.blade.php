@@ -40,7 +40,7 @@
                                             style="width: 100%">
                                             @foreach ($client as $clients)
                                                 <option value=""></option>
-                                                <option value="{{ $clients->id }}">{{ $clients->ci }}|{{ $clients->name }}
+                                                <option value="{{ $clients->id }}">{{ $clients->name }}|{{ $clients->lastname }}
                                                 </option>
                                             @endforeach
                                         </select>

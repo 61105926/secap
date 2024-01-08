@@ -2,11 +2,12 @@
 
 namespace App\Livewire\Student;
 
+use App\Models\Client as ModelsClient;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
 use GuzzleHttp\Client;
-
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Component
 {
@@ -49,73 +50,94 @@ class StudentController extends Component
             'course' => 'required|array|min:1',
         ];
     }
+    
+
     public function store()
     {
-        // dd($this->course);
-        $this->validate();
+        $this->validate(); // Realiza la validación (se asume que esto está definido en otra parte del código)
+    
         $client = new Client();
-        // Obtener datos del formulario
+    
         // Información del nuevo estudiante
         $nuevoEstudiante = [
-            'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Tu token
+            'wstoken' => '54ba9d71de467adab5ed172d145d64e3',
             'wsfunction' => 'core_user_create_users',
             'moodlewsrestformat' => 'json',
             'users' => [
                 [
                     'username' => $this->username,
-                    'password' => $this->password, // Contraseña del nuevo estudiante
+                    'password' => $this->password,
+
                     'firstname' => $this->firtsname,
                     'lastname' => $this->lastname,
                     'email' => $this->email,
-                    'auth' => 'manual', // Método de autenticación
+                    'auth' => 'manual',
                 ],
             ],
         ];
+    
         $response = $client->post('https://secap.edu.bo/webservice/rest/server.php', [
             'form_params' => $nuevoEstudiante,
         ]);
+    
         $data = json_decode($response->getBody(), true);
+    
         if (isset($data['exception']) && isset($data['message'])) {
             $exception = $data['exception'];
             $message = $data['message'];
+    
             if (isset($data['debuginfo'])) {
                 $debuginfo = $data['debuginfo'];
-                $this->emit('validarCamposResponse', $debuginfo);
+    
+                $this->dispatch('validarCamposResponse', $debuginfo);
+    
                 // Mostrar un SweetAlert2 con el mensaje de error
             } else {
-                $this->emit('validarCamposResponse', $message);
+                dd($message);
+                $this->dispatch('validarCamposResponse', $message);
             }
         }
+    
         if (isset($data[0]['id'])) {
             $nuevoEstudianteId = $data[0]['id'];
+            ModelsClient::create([
+                'id_user' => Auth::user()->id,
+                'name' => $this->firtsname,
+                'lastname' => $this->lastname,
+                'user_name' => $this->username,
+                'email' => $this->email,
+            ]);
             // Matricular al estudiante en los cursos proporcionados en el arreglo 'cursos'
-            foreach ($this->course as $cursoId) { // Los ID de los cursos se pasan directamente en el arreglo 'cursos'
+            foreach ($this->course as $cursoId) {
                 $matriculacion = [
-                    'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Tu token
+                    'wstoken' => '54ba9d71de467adab5ed172d145d64e3',
                     'wsfunction' => 'enrol_manual_enrol_users',
                     'moodlewsrestformat' => 'json',
                     'enrolments' => [
                         [
-                            'roleid' => 5, // ID del rol de estudiante en Moodle
+                            'roleid' => 5,
                             'userid' => $nuevoEstudianteId,
-                            'courseid' => $cursoId, // ID del curso al que deseas matricular al estudiante
+                            'courseid' => $cursoId,
                         ],
                     ],
                 ];
+    
                 $response = $client->post('https://secap.edu.bo/webservice/rest/server.php', [
                     'form_params' => $matriculacion,
                 ]);
+    
                 $matriculacionExitosa = json_decode($response->getBody(), true);
+    
                 // Verificar si la matriculación fue exitosa
-                if (isset($matriculacionExitosa[0]['id'])) {
-                    // El estudiante se matriculó en el curso
-                } else {
-                    // Manejar errores en la matriculación
-                }
+              
             }
         }
+    
         return redirect('/clientes');
     }
+    
+    
+    
     public function update()
     {
         // Valida los datos del formulario
@@ -152,9 +174,11 @@ class StudentController extends Component
 
             if (isset($data['debuginfo'])) {
                 $debuginfo = $data['debuginfo'];
-                $this->emit('validarCamposResponse', $debuginfo);
+                $this->dispatch('validarCamposResponse', $debuginfo);
+
             } else {
-                $this->emit('validarCamposResponse', $message);
+                $this->dispatch('validarCamposResponse', $message);
+
             }
 
             return; // Termina la ejecución si hubo un error en la actualización del estudiante
@@ -232,59 +256,84 @@ class StudentController extends Component
 
     public function render()
     {
-        // Create an HTTP client using Guzzle
+        // Crear un cliente HTTP de Guzzle
         $client = new Client();
-    
-        // Fetch all users from Moodle
+
+        // Obtener la lista de todos los cursos
         $response = $client->post('https://secap.edu.bo/webservice/rest/server.php', [
             'form_params' => [
-                'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Your token
-                'wsfunction' => 'core_user_get_users',
+                'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Tu token
+                'wsfunction' => 'core_course_get_courses',
                 'moodlewsrestformat' => 'json',
             ],
         ]);
-    
-        // Decode the JSON response for users
-        $users = json_decode($response->getBody(), true);
-    
-        // Initialize arrays to store students and non-students
-        $students = [];
-        $nonStudents = [];
-    
-        // Iterate through users to identify students and non-students
-        foreach ($users as $user) {
-            if (isset($user['roles']) && is_array($user['roles'])) {
-                $isStudent = false;
-    
-                // Check if the user has the 'student' role
-                foreach ($user['roles'] as $role) {
-                    if ($role['shortname'] === 'student') {
-                        $isStudent = true;
-                        break;
+
+        // Decodificar la respuesta JSON
+        $cursos = json_decode($response->getBody(), true);
+
+        // Inicializar un array asociativo para los estudiantes
+        $estudiantes = [];
+
+        // Iterar a través de la lista de cursos
+        foreach ($cursos as $curso) {
+            // Obtener la lista de usuarios para cada curso
+            $response = $client->post('https://secap.edu.bo/webservice/rest/server.php', [
+                'form_params' => [
+                    'wstoken' => '54ba9d71de467adab5ed172d145d64e3', // Tu token
+                    'wsfunction' => 'core_enrol_get_enrolled_users',
+                    'moodlewsrestformat' => 'json',
+                    'courseid' => $curso['id'], // ID del curso actual
+                ],
+            ]);
+
+            // Decodificar la respuesta JSON
+            $usuariosEnCurso = json_decode($response->getBody(), true);
+
+            // Filtrar la lista de usuarios para seleccionar solo a los estudiantes
+            $estudiantesEnCurso = array_filter($usuariosEnCurso, function ($usuario) {
+                foreach ($usuario['roles'] as $rol) {
+                    if ($rol['shortname'] === 'student') {
+                        return true;
                     }
                 }
-    
-                if ($isStudent) {
-                    $students[] = [
-                        'id' => $user['id'],
-                        'username' => $user['username'],
-                    ];
+                return false;
+            });
+
+            // Iterar a través de los estudiantes en este curso
+            foreach ($estudiantesEnCurso as $estudiante) {
+                $estudianteId = $estudiante['id'];
+
+                // Verificar si el estudiante ya está en la lista
+                if (!isset($estudiantes[$estudianteId])) {
+                    // Agregar el estudiante a la lista con su ID como clave
+                    $estudiantes[$estudianteId] = $estudiante;
+
+                    // Agregar el nombre del curso a la lista de cursos del estudiante
+                    $estudiantes[$estudianteId]['cursos'][] = $curso['fullname'];
                 } else {
-                    $nonStudents[] = [
-                        'id' => $user['id'],
-                        'username' => $user['username'],
-                    ];
+                    // Si el estudiante ya existe, simplemente agrega el nombre del curso
+                    $estudiantes[$estudianteId]['cursos'][] = $curso['fullname'];
                 }
             }
         }
-    
-        // Now, combine students and non-students and pass them to the view
+
+        // Puedes obtener la lista final de estudiantes usando array_values para eliminar las claves
+        $listaEstudiantes = array_values($estudiantes);
+
+        // Puedes ordenar la lista de estudiantes según tus necesidades
+        $listaEstudiantes = collect($listaEstudiantes)->sortBy('nombre_completo')->toArray();
+
+        // Pasar la lista de estudiantes a la vista
+        $filteredEstudiantes = array_filter($listaEstudiantes, function ($estudiante) {
+            // Comparar el término de búsqueda con el nombre completo del estudiante
+            return stristr($estudiante['username'], $this->searchTerm) !== false;
+        });
+
         return view('livewire.student.student', [
-            'estudiantes' => array_merge($students, $nonStudents),
-            'cursos' => [], // You can fetch courses and pass them here if needed
-        ])->layout('layouts.app');
+            'estudiantes' => $filteredEstudiantes,
+            'cursos' => $cursos,
+        ]);
     }
-    
     public function getStudentDataFromMoodle($studentId)
     {
         // Crear una instancia de GuzzleHttp\Client
@@ -359,6 +408,6 @@ class StudentController extends Component
     public function resetUI()
     {
         $this->reset();
-        $this->componentName = 'Persona';
+        $this->componentName = 'Estudiante';
     }
 }
